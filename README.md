@@ -1,10 +1,10 @@
 #Contributors:
 
-Sangaraju, Mahesh Varma, UTA ID: 1002237500
-Rajendran, Kabilan, UTA ID: 1002184560
-Sripalasetty, Kasi Rama Rao, UTA ID: 1002192961
-Saravanan, Shivesh, UTA ID: 1002211909
-Singh, Anviti, UTA ID: 1002249427
+-Sangaraju, Mahesh Varma, UTA ID: 1002237500.
+-Rajendran, Kabilan, UTA ID: 1002184560.
+-Sripalasetty, Kasi Rama Rao, UTA ID: 1002192961.
+-Saravanan, Shivesh, UTA ID: 1002211909.
+-Singh, Anviti, UTA ID: 1002249427.
 
 
 
