@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String         @id @default(uuid())
+  name            String
+  email           String         @unique
+  role            Role           @default(STUDENT)
+  avatarId        String?
+  createdAt       DateTime       @default(now())
+  lastActive      DateTime       @default(now())
+  isApproved      Boolean        @default(true)
+  isEmailVerified Boolean        @default(false)
+  password        String
+  academicLevel   String?
+  bio             String?
+  gpa             String?
+  institution     String?
+  location        String?
+  major           String?
+  phone           String?
+  year            String?
+  messagesRecvd   Message[]      @relation("receivedMessages")
+  messagesSent    Message[]      @relation("sentMessages")
+  notifications   Notification[]
+  student         Student?
+  tutor           Tutor?
+}
+
+model Student {
+  id                     String            @id @default(uuid())
+  userId                 String            @unique
+  enrolledSubjects       String[]
+  studyGoals             String[]
+  preferredLearningStyle String?
+  reviews                Review[]
+  sessionAttendees       SessionAttendee[]
+  joinRequests           SessionJoinRequest[] @relation("StudentJoinRequests")
+  user                   User              @relation(fields: [userId], references: [id])
+  studyPlans             StudyPlan[]
+}
+
+model Tutor {
+  id              String    @id
+  userId          String    @unique
+  rating          Float     @default(0)
+  reviews         Int       @default(0)
+  experience      Int       @default(0)
+  subjects        String[]
+  bio             String?
+  availability    String?
+  reviewsReceived Review[]  @relation("tutorReviews")
+  sessions        Session[]
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+model StudyPlan {
+  id              String       @id @default(uuid())
+  studentId       String
+  subject         String
+  focusArea       String
+  overallProgress Float        @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  student         Student      @relation(fields: [studentId], references: [id])
+  weeklyPlans     WeeklyPlan[]
+}
+
+model WeeklyPlan {
+  id          String    @id @default(uuid())
+  studyPlanId String
+  weekNumber  Int
+  title       String
+  startDate   DateTime?
+  endDate     DateTime?
+  tasks       Task[]
+  studyPlan   StudyPlan @relation(fields: [studyPlanId], references: [id])
+}
+
+model Task {
+  id                String     @id @default(uuid())
+  weeklyPlanId      String
+  title             String
+  description       String?
+  day               String?
+  dueDate           DateTime?
+  estimatedDuration Int?
+  completed         Boolean    @default(false)
+  subTasks          SubTask[]
+  weeklyPlan        WeeklyPlan @relation(fields: [weeklyPlanId], references: [id])
+}
+
+model SubTask {
+  id          String  @id @default(uuid())
+  taskId      String
+  description String
+  completed   Boolean @default(false)
+  task        Task    @relation(fields: [taskId], references: [id])
+}
+
+model Session {
+  id               String            @id @default(uuid())
+  tutorId          String
+  title            String
+  description      String?
+  dateTime         DateTime
+  duration         Int
+  mode             SessionMode
+  meetingLink      String?
+  location         String?
+  availableSeats   Int
+  status           SessionStatus     @default(UPCOMING)
+  sessionType      String?
+  reviews          Review[]          @relation("sessionReviews")
+  tutor            Tutor             @relation(fields: [tutorId], references: [id])
+  sessionAttendees SessionAttendee[]
+  joinRequests     SessionJoinRequest[] @relation("SessionJoinRequests")
+}
+
+model SessionAttendee {
+  id        String  @id @default(uuid())
+  sessionId String
+  studentId String
+  session   Session @relation(fields: [sessionId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id])
+
+  @@unique([sessionId, studentId])
+}
+
+model SessionJoinRequest {
+  id        String             @id @default(uuid())
+  sessionId String
+  studentId String
+  status    SessionJoinStatus  @default(PENDING)
+  createdAt DateTime           @default(now())
+  session   Session            @relation("SessionJoinRequests", fields: [sessionId], references: [id])
+  student   Student            @relation("StudentJoinRequests", fields: [studentId], references: [id])
+
+  @@unique([sessionId, studentId])
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  senderId    String
+  recipientId String
+  content     String
+  timestamp   DateTime @default(now())
+  readStatus  Boolean  @default(false)
+  recipient   User     @relation("receivedMessages", fields: [recipientId], references: [id])
+  sender      User     @relation("sentMessages", fields: [senderId], references: [id])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String
+  type        NotificationType
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  title       String
+  description String?
+  actionLabel String?
+  actionHref  String?
+  user        User             @relation(fields: [userId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  sessionId String
+  studentId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  tutorId   String?
+  session   Session  @relation("sessionReviews", fields: [sessionId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+  tutor     Tutor?   @relation("tutorReviews", fields: [tutorId], references: [id])
+
+  @@unique([sessionId, studentId])
+}
+
+enum Role {
+  STUDENT
+  TUTOR
+  ADMIN
+}
+
+enum SessionMode {
+  ONLINE
+  OFFLINE
+}
+
+enum SessionStatus {
+  UPCOMING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum SessionJoinStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  SESSIONS
+  MESSAGES
+  PLANS
+  GENERAL
+}
