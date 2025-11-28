@@ -1,3 +1,13 @@
+#Contributors:
+
+Sangaraju, Mahesh Varma, UTA ID: 1002237500
+Rajendran, Kabilan, UTA ID: 1002184560
+Sripalasetty, Kasi Rama Rao, UTA ID: 1002192961
+Saravanan, Shivesh, UTA ID: 1002211909
+Singh, Anviti, UTA ID: 1002249427
+
+
+
 # MindPath AI Study Planner
 
 MindPath is a modern, AI-powered web application designed to connect students with tutors and provide intelligent tools for academic success. It features personalized study plans, AI-driven assistance, and seamless communication channels for a comprehensive learning experience.
